@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	json2 "encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/Iposhka54/pulse/internal/collector"
 	"github.com/Iposhka54/pulse/internal/ui"
@@ -32,13 +34,23 @@ Vk: kafka_starter
 }
 
 func newStatusCmd() *cobra.Command {
-	return &cobra.Command{
+	var asJSON bool
+
+	cmd := &cobra.Command{
 		Use:   "status",
 		Short: "Show current system metrics",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := collector.SnapshotNow()
 			if err != nil {
 				return err
+			}
+			if asJSON {
+				encoder := json2.NewEncoder(os.Stdout)
+				encoder.SetIndent("", "  ")
+				if err = encoder.Encode(s); err != nil {
+					return err
+				}
+				return nil
 			}
 			fmt.Println("Host:", s.Hostname)
 			fmt.Println("OS:", s.OS)
@@ -62,4 +74,13 @@ func newStatusCmd() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().BoolVarP(
+		&asJSON,
+		"json", "j",
+		false,
+		"Output metrics as JSON",
+	)
+
+	return cmd
 }

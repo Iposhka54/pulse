@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -11,29 +12,41 @@ import (
 )
 
 type Snapshot struct {
-	Hostname string
-	OS       string
-	Kernel   string
-	Uptime   time.Duration
+	Hostname string        `json:"hostname"`
+	OS       string        `json:"os"`
+	Kernel   string        `json:"kernel"`
+	Uptime   time.Duration `json:"-"`
 	CPU      struct {
-		Percent float64
-		Cores   int
-		Model   string
-	}
+		Percent float64 `json:"percent"`
+		Cores   int     `json:"cores"`
+		Model   string  `json:"model"`
+	} `json:"cpu"`
 	Memory struct {
-		Total   uint64
-		Used    uint64
-		Percent float64
-	}
-	Disks []DiskInfo
-	Load  struct{ L1, L5, L15 float64 }
+		Total   uint64  `json:"total_bytes"`
+		Used    uint64  `json:"used_bytes"`
+		Percent float64 `json:"used_percent"`
+	} `json:"memory"`
+	Disks []DiskInfo `json:"disks"`
+	Load  struct {
+		L1  float64 `json:"l1"`
+		L5  float64 `json:"l5"`
+		L15 float64 `json:"l15"`
+	} `json:"load,omitzero"`
+}
+
+func (s Snapshot) MarshalJSON() ([]byte, error) {
+	type alias Snapshot
+	return json.Marshal(struct {
+		alias
+		UptimeSeconds int64 `json:"uptime_seconds"`
+	}{alias: alias(s), UptimeSeconds: int64(s.Uptime / time.Second)})
 }
 
 type DiskInfo struct {
-	Mountpoint string
-	Total      uint64
-	Used       uint64
-	Percent    float64
+	Mountpoint string  `json:"mountpoint"`
+	Total      uint64  `json:"total"`
+	Used       uint64  `json:"used"`
+	Percent    float64 `json:"percent"`
 }
 
 func SnapshotNow() (*Snapshot, error) {
