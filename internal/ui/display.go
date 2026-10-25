@@ -7,7 +7,7 @@ func FormatBytes(bytes uint64) string {
 	if bytes < unit {
 		return fmt.Sprintf("%d B", bytes)
 	}
-	div, exp := unit, 0
+	div, exp := uint64(unit), 0
 	for n := bytes / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
