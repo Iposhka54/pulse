@@ -44,9 +44,9 @@ func (s Snapshot) MarshalJSON() ([]byte, error) {
 
 type DiskInfo struct {
 	Mountpoint string  `json:"mountpoint"`
-	Total      uint64  `json:"total"`
-	Used       uint64  `json:"used"`
-	Percent    float64 `json:"percent"`
+	Total      uint64  `json:"total_bytes"`
+	Used       uint64  `json:"used_bytes"`
+	Percent    float64 `json:"used_percent"`
 }
 
 func SnapshotNow() (*Snapshot, error) {
