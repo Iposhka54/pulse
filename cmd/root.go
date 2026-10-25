@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Iposhka54/pulse/internal/collector"
+	"github.com/Iposhka54/pulse/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -11,13 +12,7 @@ func Execute() error {
 	root := cobra.Command{
 		Use:   "pulse",
 		Short: "Essential tool for your cluster",
-		Long: `
-██████╗ ██╗   ██╗██╗     ███████╗███████╗
-██╔══██╗██║   ██║██║     ██╔════╝██╔════╝
-██████╔╝██║   ██║██║     ███████╗█████╗  
-██╔═══╝ ██║   ██║██║     ╚════██║██╔══╝  
-██║     ╚██████╔╝███████╗███████║███████╗
-╚═╝      ╚═════╝ ╚══════╝╚══════╝╚══════╝
+		Long: ui.RenderBanner() + `
 
 Pulse - Professional Server Monitoring Tool
 
