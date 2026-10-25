@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	json2 "encoding/json"
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/Iposhka54/pulse/internal/collector"
+	"github.com/Iposhka54/pulse/internal/server"
 	"github.com/Iposhka54/pulse/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -30,6 +31,7 @@ Vk: kafka_starter
 	}
 
 	root.AddCommand(newStatusCmd())
+	root.AddCommand(newServeCmd())
 	return root.Execute()
 }
 
@@ -45,7 +47,7 @@ func newStatusCmd() *cobra.Command {
 				return err
 			}
 			if asJSON {
-				encoder := json2.NewEncoder(os.Stdout)
+				encoder := json.NewEncoder(os.Stdout)
 				encoder.SetIndent("", "  ")
 				if err = encoder.Encode(s); err != nil {
 					return err
@@ -80,6 +82,28 @@ func newStatusCmd() *cobra.Command {
 		"json", "j",
 		false,
 		"Output metrics as JSON",
+	)
+
+	return cmd
+}
+
+func newServeCmd() *cobra.Command {
+	var addr string
+
+	cmd := &cobra.Command{
+		Use:   "serve",
+		Short: "Start http-server on 9100 port",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg := server.Config{Addr: addr}
+			return server.Start(cfg)
+		},
+	}
+
+	cmd.Flags().StringVarP(
+		&addr,
+		"addr", "a",
+		":9100",
+		"Address for http server ",
 	)
 
 	return cmd
