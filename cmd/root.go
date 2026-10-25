@@ -57,7 +57,7 @@ func newStatusCmd() *cobra.Command {
 			fmt.Println("Disks:")
 			for _, d := range s.Disks {
 				fmt.Printf("  %s: %.1f%% used, %s / %s\n",
-					d.Mountpoint, d.Percent, d.Used, d.Total)
+					d.Mountpoint, d.Percent, ui.FormatBytes(d.Used), ui.FormatBytes(d.Total))
 			}
 			return nil
 		},
