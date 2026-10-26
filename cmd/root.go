@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -114,14 +115,19 @@ func newServeCmd() *cobra.Command {
 			ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer cancel()
 			c := collector.New(interval)
-			go func() {
+
+			wg := sync.WaitGroup{}
+			wg.Go(func() {
 				c.Run(ctx)
-			}()
+			})
 			srv := server.NewHttpServer(cfg, c)
-			if err := server.Start(ctx, srv); err != nil {
-				return err
-			}
-			return nil
+			var err error
+			wg.Go(func() {
+				err = server.Start(ctx, srv)
+			})
+
+			wg.Wait()
+			return err
 		},
 	}
 
