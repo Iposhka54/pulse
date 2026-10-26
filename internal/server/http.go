@@ -11,15 +11,25 @@ import (
 	"time"
 
 	"github.com/Iposhka54/pulse/internal/collector"
+	"github.com/Iposhka54/pulse/internal/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type HttpServer struct {
 	cfg       Config
 	collector *collector.Collector
+	registry  *prometheus.Registry
 }
 
 func NewHttpServer(cfg Config, col *collector.Collector) *HttpServer {
-	return &HttpServer{cfg: cfg, collector: col}
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(metrics.NewSystemCollector(col))
+	return &HttpServer{
+		cfg:       cfg,
+		collector: col,
+		registry:  registry,
+	}
 }
 
 func (s *HttpServer) Run(ctx context.Context) error {
@@ -31,6 +41,7 @@ func (s *HttpServer) Run(ctx context.Context) error {
 	mux.HandleFunc("GET /livez", s.handleLivez)
 	mux.HandleFunc("GET /readyz", s.handleReadyz)
 	mux.HandleFunc("GET /api/v1/status", s.handleStatus)
+	mux.Handle("GET /metrics", promhttp.HandlerFor(s.registry, promhttp.HandlerOpts{}))
 
 	srv := &http.Server{
 		Addr:              s.cfg.Addr,

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/Iposhka54/pulse/internal/utils"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -39,7 +40,7 @@ func (s Snapshot) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		alias
 		UptimeSeconds int64 `json:"uptime_seconds"`
-	}{alias: alias(s), UptimeSeconds: int64(s.Uptime / time.Second)})
+	}{alias: alias(s), UptimeSeconds: utils.DurationToSeconds(s.Uptime)})
 }
 
 type DiskInfo struct {
