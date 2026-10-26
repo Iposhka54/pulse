@@ -7,10 +7,10 @@ var (
 	PrimaryColor = lipgloss.Color("#5B9BD5") //Blue
 
 	// Status colors
-	SuccessColor = lipgloss.Color("#2ECC71") // Green
-	WarningColor = lipgloss.Color("#F1C40F") // Yellow
-	ErrorColor   = lipgloss.Color("#E74C3C") // Red
-	InfoColor    = lipgloss.Color("#5B9BD5") // Blue
+	ColorSuccess = lipgloss.Color("#2ECC71") // green
+	ColorWarning = lipgloss.Color("#F1C40F") // yellow
+	ColorError   = lipgloss.Color("#E74C3C") // red
+	ColorMuted   = lipgloss.Color("#3A3A3A") // dark-gray
 )
 
 // Base styles
@@ -23,8 +23,26 @@ var (
 
 var (
 	BannerStyle = lipgloss.NewStyle().
-		Foreground(PrimaryColor).
-		Bold(true)
+			Foreground(PrimaryColor).
+			Bold(true)
+
+	BarFilledSuccess = lipgloss.NewStyle().
+				Foreground(ColorSuccess)
+
+	BarFilledWarning = lipgloss.NewStyle().
+				Foreground(ColorWarning)
+
+	BarFilledCritical = lipgloss.NewStyle().
+				Foreground(ColorError)
+
+	BarEmpty = lipgloss.NewStyle().
+			Foreground(ColorMuted)
+
+	PercentStyle = lipgloss.NewStyle().
+			Bold(true)
+
+	LabelStyle = lipgloss.NewStyle().
+			Foreground(PrimaryColor)
 )
 
 func RenderBanner() string {

@@ -66,25 +66,8 @@ func newStatusCmd() *cobra.Command {
 				}
 				return nil
 			}
-			fmt.Println("Host:", s.Hostname)
-			fmt.Println("OS:", s.OS)
-			fmt.Println("Kernel:", s.Kernel)
-			fmt.Println("Uptime:", s.Uptime)
-			fmt.Println()
 
-			fmt.Printf("CPU: %.1f%% (%d cores) %s\n", s.CPU.Percent, s.CPU.Cores, s.CPU.Model)
-			fmt.Printf("Memory: %s / %s (%.1f%%)\n",
-				ui.FormatBytes(s.Memory.Used), ui.FormatBytes(s.Memory.Total), s.Memory.Percent)
-			if s.Load.L1 > 0 {
-				fmt.Printf("Load: %.2f %.2f %.2f\n", s.Load.L1, s.Load.L5, s.Load.L15)
-			}
-
-			fmt.Println()
-			fmt.Println("Disks:")
-			for _, d := range s.Disks {
-				fmt.Printf("  %s: %.1f%% used, %s / %s\n",
-					d.Mountpoint, d.Percent, ui.FormatBytes(d.Used), ui.FormatBytes(d.Total))
-			}
+			ui.PrintStatus(s)
 			return nil
 		},
 	}
