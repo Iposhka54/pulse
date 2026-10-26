@@ -42,10 +42,12 @@ func (s *HttpServer) Run(ctx context.Context) error {
 		listen, err := net.Listen("tcp", s.cfg.Addr)
 		if err != nil {
 			errCh <- err
+			return
 		}
 		log.Printf("listening on %s", s.cfg.Addr)
 		if err = srv.Serve(listen); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
+			return
 		}
 	}()
 

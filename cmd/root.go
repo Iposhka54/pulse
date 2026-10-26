@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/Iposhka54/pulse/internal/server"
 	"github.com/Iposhka54/pulse/internal/ui"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -116,19 +116,19 @@ func newServeCmd() *cobra.Command {
 			defer cancel()
 			c := collector.New(interval)
 
-			wg := sync.WaitGroup{}
-			wg.Go(func() {
+			errGroup, ctx := errgroup.WithContext(ctx)
+			errGroup.Go(func() error {
 				c.Run(ctx)
+				return nil
 			})
 			srv := server.NewHttpServer(cfg, c)
-			var err error
-			wg.Go(func() {
-				err = server.Start(ctx, srv)
+			errGroup.Go(func() error {
+				err := server.Start(ctx, srv)
 				cancel()
+				return err
 			})
 
-			wg.Wait()
-			return err
+			return errGroup.Wait()
 		},
 	}
 
