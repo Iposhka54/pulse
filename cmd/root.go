@@ -15,6 +15,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	minInterval = time.Second
+	maxInterval = 7 * 24 * time.Hour
+)
+
 func Execute() error {
 	root := cobra.Command{
 		Use:   "pulse",
@@ -99,6 +104,9 @@ func newServeCmd() *cobra.Command {
 		Use:   "serve",
 		Short: "Start http-server on 9100 port",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := validateInterval(interval); err != nil {
+				return err
+			}
 			cfg := server.Config{
 				Addr:            addr,
 				ShutdownTimeout: 10 * time.Second,
@@ -131,4 +139,14 @@ func newServeCmd() *cobra.Command {
 	)
 
 	return cmd
+}
+
+func validateInterval(d time.Duration) error {
+	if d < minInterval {
+		return fmt.Errorf("interval must be >= %s, got %s", minInterval, d)
+	}
+	if d > maxInterval {
+		return fmt.Errorf("interval must be <= %s, got %s", maxInterval, d)
+	}
+	return nil
 }
