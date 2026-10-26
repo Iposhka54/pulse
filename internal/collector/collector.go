@@ -24,7 +24,8 @@ func (c *Collector) Run(ctx context.Context) {
 			c.latestSnapshot = actualSnapshot
 		case <-ctx.Done():
 			ticker.Stop()
-			break
+			log.Println("stopped collect metrics")
+			return
 		}
 	}
 }
