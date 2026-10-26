@@ -4,7 +4,6 @@ import (
 	"runtime"
 
 	"github.com/Iposhka54/pulse/internal/collector"
-	"github.com/Iposhka54/pulse/internal/utils"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -115,5 +114,5 @@ func (c *SystemCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(load15, prometheus.GaugeValue, snap.Load.L15)
 	}
 
-	ch <- prometheus.MustNewConstMetric(uptimeSeconds, prometheus.GaugeValue, utils.DurationToSecondsFloat(snap.Uptime))
+	ch <- prometheus.MustNewConstMetric(uptimeSeconds, prometheus.GaugeValue, snap.Uptime.Seconds())
 }
