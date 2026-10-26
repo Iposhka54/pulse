@@ -3,25 +3,29 @@ package collector
 import (
 	"context"
 	"log"
+	"sync"
 	"time"
 )
 
 type Collector struct {
-	interval       time.Duration
-	latestSnapshot *Snapshot
+	mu       sync.RWMutex
+	interval time.Duration
+	latest   *Snapshot
+}
+
+func New(interval time.Duration) *Collector {
+	return &Collector{
+		interval: interval,
+	}
 }
 
 func (c *Collector) Run(ctx context.Context) {
-	ticker := time.NewTicker(5 * time.Second)
+	c.collectOnce()
+	ticker := time.NewTicker(c.interval)
 	for {
 		select {
 		case <-ticker.C:
-			actualSnapshot, err := SnapshotNow()
-			if err != nil {
-				log.Printf("Failed to analyze server metrics: %v", err)
-				continue
-			}
-			c.latestSnapshot = actualSnapshot
+			c.collectOnce()
 		case <-ctx.Done():
 			ticker.Stop()
 			log.Println("stopped collect metrics")
@@ -31,11 +35,18 @@ func (c *Collector) Run(ctx context.Context) {
 }
 
 func (c *Collector) Latest() *Snapshot {
-	return c.latestSnapshot
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.latest
 }
 
-func New(interval time.Duration) *Collector {
-	return &Collector{
-		interval: interval,
+func (c *Collector) collectOnce() {
+	snap, err := SnapshotNow()
+	if err != nil {
+		log.Printf("failed to analyze server metrics: %v", err)
+		return
 	}
+	c.mu.Lock()
+	c.latest = snap
+	c.mu.Unlock()
 }
