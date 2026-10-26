@@ -76,12 +76,17 @@ func SnapshotNow() (*Snapshot, error) {
 		s.Memory.Percent = vm.UsedPercent
 	}
 
+	existsMountpoint := make(map[string]struct{})
 	if parts, err := disk.Partitions(false); err == nil {
 		for _, p := range parts {
 			if p.Fstype == "tmpfs" || p.Fstype == "devtmpfs" || p.Fstype == "squashfs" {
 				continue
 			}
+			if _, ok := existsMountpoint[p.Mountpoint]; ok {
+				continue
+			}
 			if u, err := disk.Usage(p.Mountpoint); err == nil {
+				existsMountpoint[p.Mountpoint] = struct{}{}
 				s.Disks = append(s.Disks, DiskInfo{
 					Mountpoint: p.Mountpoint,
 					Total:      u.Total,
