@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/Iposhka54/pulse/internal/collector"
 	"github.com/Iposhka54/pulse/internal/server"
@@ -89,13 +93,27 @@ func newStatusCmd() *cobra.Command {
 
 func newServeCmd() *cobra.Command {
 	var addr string
+	var interval time.Duration
 
 	cmd := &cobra.Command{
 		Use:   "serve",
 		Short: "Start http-server on 9100 port",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg := server.Config{Addr: addr}
-			return server.Start(cfg)
+			cfg := server.Config{
+				Addr:            addr,
+				ShutdownTimeout: 10 * time.Second,
+			}
+			ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+			defer cancel()
+			c := collector.New(interval)
+			go func() {
+				c.Run(ctx)
+			}()
+			srv := server.NewHttpServer(cfg, c)
+			if err := server.Start(ctx, srv); err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 
@@ -104,6 +122,12 @@ func newServeCmd() *cobra.Command {
 		"addr", "a",
 		":9100",
 		"Address for http server ",
+	)
+	cmd.Flags().DurationVarP(
+		&interval,
+		"interval", "i",
+		5*time.Second,
+		"Interval for get system metrics",
 	)
 
 	return cmd
