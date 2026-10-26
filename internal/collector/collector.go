@@ -8,9 +8,10 @@ import (
 )
 
 type Collector struct {
-	mu       sync.RWMutex
-	interval time.Duration
-	latest   *Snapshot
+	mu            sync.RWMutex
+	interval      time.Duration
+	latest        *Snapshot
+	lastCollected time.Time
 }
 
 func New(interval time.Duration) *Collector {
@@ -40,6 +41,16 @@ func (c *Collector) Latest() *Snapshot {
 	return c.latest
 }
 
+func (c *Collector) LastCollected() (time.Time, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.lastCollected, !c.lastCollected.IsZero()
+}
+
+func (c *Collector) Interval() time.Duration {
+	return c.interval
+}
+
 func (c *Collector) collectOnce() {
 	snap, err := SnapshotNow()
 	if err != nil {
@@ -48,5 +59,6 @@ func (c *Collector) collectOnce() {
 	}
 	c.mu.Lock()
 	c.latest = snap
+	c.lastCollected = time.Now()
 	c.mu.Unlock()
 }
