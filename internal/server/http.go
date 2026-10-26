@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
@@ -38,8 +39,12 @@ func (s *HttpServer) Run(ctx context.Context) error {
 	}
 	errCh := make(chan error, 1)
 	go func() {
+		listen, err := net.Listen("tcp", s.cfg.Addr)
+		if err != nil {
+			errCh <- err
+		}
 		log.Printf("listening on %s", s.cfg.Addr)
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err = srv.Serve(listen); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
 		}
 	}()

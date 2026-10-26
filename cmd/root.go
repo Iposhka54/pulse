@@ -103,7 +103,7 @@ func newServeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "serve",
-		Short: "Start http-server on 9100 port",
+		Short: "Run agent with HTTP API",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := validateInterval(interval); err != nil {
 				return err
@@ -124,6 +124,7 @@ func newServeCmd() *cobra.Command {
 			var err error
 			wg.Go(func() {
 				err = server.Start(ctx, srv)
+				cancel()
 			})
 
 			wg.Wait()
