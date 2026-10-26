@@ -37,6 +37,8 @@ Telegram: @machine_go
 Vk: kafka_starter
 `,
 		DisableSuggestions: true,
+		SilenceErrors:      true,
+		SilenceUsage:       true,
 		CompletionOptions:  cobra.CompletionOptions{DisableDefaultCmd: true},
 	}
 
