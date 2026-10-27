@@ -43,14 +43,16 @@ func PrintStatus(s *collector.Snapshot) {
 	}
 
 	fmt.Println()
-	fmt.Println("Disks:")
-	for _, d := range s.Disks {
-		fmt.Printf("  %-20s %s  %s / %s\n",
-			d.Mountpoint,
-			RenderBar(d.Percent, DefaultBarWidth),
-			FormatBytes(d.Used),
-			FormatBytes(d.Total),
-		)
+	if len(s.Disks) > 0 {
+		fmt.Println("Disks:")
+		for _, d := range s.Disks {
+			fmt.Printf("  %-20s %s  %s / %s\n",
+				d.Mountpoint,
+				RenderBar(d.Percent, DefaultBarWidth),
+				FormatBytes(d.Used),
+				FormatBytes(d.Total),
+			)
+		}
 	}
 }
 
