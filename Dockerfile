@@ -1,4 +1,4 @@
-FROM golang:1.26 AS build
+FROM golang:1.26.10 AS build
 LABEL authors="Iposhka54"
 WORKDIR /src
 
