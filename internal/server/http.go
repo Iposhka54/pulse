@@ -22,9 +22,9 @@ type HttpServer struct {
 	registry  *prometheus.Registry
 }
 
-func NewHttpServer(cfg Config, col *collector.Collector) *HttpServer {
+func NewHttpServer(cfg Config, col *collector.Collector, version string) *HttpServer {
 	registry := prometheus.NewRegistry()
-	registry.MustRegister(metrics.NewSystemCollector(col))
+	registry.MustRegister(metrics.NewSystemCollector(col, version))
 	return &HttpServer{
 		cfg:       cfg,
 		collector: col,

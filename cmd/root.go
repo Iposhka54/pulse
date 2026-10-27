@@ -21,7 +21,7 @@ const (
 	maxInterval = 7 * 24 * time.Hour
 )
 
-func Execute() error {
+func Execute(version string) error {
 	root := cobra.Command{
 		Use:   "pulse",
 		Short: "Essential tool for your cluster",
@@ -43,7 +43,7 @@ Vk: kafka_starter
 	}
 
 	root.AddCommand(newStatusCmd())
-	root.AddCommand(newServeCmd())
+	root.AddCommand(newServeCmd(version))
 	return root.Execute()
 }
 
@@ -82,7 +82,7 @@ func newStatusCmd() *cobra.Command {
 	return cmd
 }
 
-func newServeCmd() *cobra.Command {
+func newServeCmd(version string) *cobra.Command {
 	var addr string
 	var interval time.Duration
 
@@ -106,7 +106,7 @@ func newServeCmd() *cobra.Command {
 				c.Run(ctx)
 				return nil
 			})
-			srv := server.NewHttpServer(cfg, c)
+			srv := server.NewHttpServer(cfg, c, version)
 			errGroup.Go(func() error {
 				err := server.Start(ctx, srv)
 				cancel()

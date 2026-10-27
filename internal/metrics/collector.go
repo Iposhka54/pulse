@@ -10,7 +10,7 @@ import (
 var buildInfo = prometheus.NewDesc(
 	"pulse_build_info",
 	"Build information about the pulse binary.",
-	[]string{"goversion"}, nil,
+	[]string{"version", "goversion"}, nil,
 )
 
 var cpuCores = prometheus.NewDesc(
@@ -68,11 +68,15 @@ var (
 )
 
 type SystemCollector struct {
-	src *collector.Collector
+	src     *collector.Collector
+	version string
 }
 
-func NewSystemCollector(src *collector.Collector) *SystemCollector {
-	return &SystemCollector{src: src}
+func NewSystemCollector(src *collector.Collector, version string) *SystemCollector {
+	return &SystemCollector{
+		src:     src,
+		version: version,
+	}
 }
 
 func (c *SystemCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -91,7 +95,7 @@ func (c *SystemCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func (c *SystemCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(
-		buildInfo, prometheus.GaugeValue, 1, runtime.Version(),
+		buildInfo, prometheus.GaugeValue, 1, c.version, runtime.Version(),
 	)
 	snap := c.src.Latest()
 	if snap == nil {
