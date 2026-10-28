@@ -39,10 +39,6 @@ func styleForPercent(percent float64) lipgloss.Style {
 	}
 }
 
-func RenderProgressBar(percent float64) string {
-	return RenderBar(percent, DefaultBarWidth)
-}
-
 func RenderBar(percent float64, width int) string {
 	if width <= 0 {
 		width = DefaultBarWidth
@@ -70,16 +66,5 @@ func RenderBar(percent float64, width int) string {
 		filledPart,
 		emptyPart,
 		percentStyle.Render(fmt.Sprintf("%5.1f%%", p)),
-	)
-}
-
-func RenderMetric(label string, percent float64) string {
-	return RenderMetricRow(label, percent, 30, 10)
-}
-
-func RenderMetricRow(label string, percent float64, width, labelWidth int) string {
-	return fmt.Sprintf("%s %s",
-		LabelStyle.Width(labelWidth).Render(label),
-		RenderBar(percent, width),
 	)
 }
